@@ -160,7 +160,7 @@ void optimized_computing_chen() {
         string theval = "";
         bool meetleftbra = false;
         cout << "for the item " << iter->first << endl;
-        
+
         int val = computlhsindex(iter->first);
         if (val == -1)continue;
         indexlib[val] = iter->second;
