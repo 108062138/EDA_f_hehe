@@ -112,14 +112,15 @@ module dut (out, in);
 endmodule
 
 module tb();
-    reg[9:0] results[1];
-    reg[19:0] data[1];
-    dut duttest(results[0], data[0]);
+    wire[39:0] results;
+    reg[19:0] data;
+    dut duttest(results[39:0], data[19:0]);
     initial begin
-        $readmemb("data.txt", data);
-        $display("data = [%20b]", data[0]);
+//        $readmemb("data.txt", data);
+        data[19:0]=20'b0;
+        $display("data = [%20b]", data);
         #1
-        $display("results = [%10b]", results[0]);
-        $writememb("results.txt", results);
+        $display("results = [%10b]", results);
+//        $writememb("results.txt", results);
     end 
 endmodule

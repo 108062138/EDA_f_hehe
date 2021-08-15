@@ -160,7 +160,7 @@ void optimized_computing_chen() {
         string theval = "";
         bool meetleftbra = false;
         cout << "for the item " << iter->first << endl;
-        
+
         int val = computlhsindex(iter->first);
         if (val == -1)continue;
         indexlib[val] = iter->second;
@@ -178,7 +178,7 @@ void optimized_computing_chen() {
             }
             int rhsval = stoi(tmpval);
             auto pr = make_pair(i, rhsval);
-            auto ps = make_pair(i, rhsval);
+            //auto ps = make_pair(i, rhsval);
             if (uprec.empty()) uprec.push_back(pr);
             else {
                 if (uprec.back().second + 1 == rhsval && uprec.back().first + 1 == i) {
@@ -193,7 +193,7 @@ void optimized_computing_chen() {
                 }
             }
 
-            if (downrec.empty()) downrec.push_back(pr);
+            /*if (downrec.empty()) downrec.push_back(pr);
             else {
                 if (downrec.back().second - 1 == rhsval && downrec.back().first + 1 == i){
                     downrec.push_back(pr);
@@ -205,14 +205,14 @@ void optimized_computing_chen() {
                     downrec.clear();
                     downrec.push_back(pr);
                 }
-            }
+            }*/
         }
     }
 
     if (uprec.size() > 1)
         upcontis.push_back(uprec);
-    if (downrec.size() > 1)
-        downcontis.push_back(downrec);
+    //if (downrec.size() > 1)
+    //    downcontis.push_back(downrec);
 
     set<int> rec;
     cout << "for the upcontis: " << endl;
@@ -238,7 +238,7 @@ void optimized_computing_chen() {
         cout << endl;
     }
 
-    cout << "for the downcontis: " << endl;
+    /*cout << "for the downcontis: " << endl;
     for (auto x : downcontis) {
         bool meetbutmore = false;
         if (rec.find(x[0].first) != rec.end()) {
@@ -285,7 +285,7 @@ void optimized_computing_chen() {
             cout << endl;
         }
         cout << endl;
-    }
+    }*/
 
 
 }
