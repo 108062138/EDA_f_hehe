@@ -115,12 +115,18 @@ module tb();
     wire[39:0] results;
     reg[19:0] data;
     dut duttest(results[39:0], data[19:0]);
+	initial begin
+		f=$fopen("output.txt","w");
+	end
     initial begin
 //        $readmemb("data.txt", data);
-        data[19:0]=20'b0;
-        $display("data = [%20b]", data);
-        #1
-        $display("results = [%10b]", results);
+		for (data = 20'b0000_0000_0000_0000; data<20'b0000_1111_1111_1111 ; data=data+20'b0000_0000_0000_0001) begin
+			$fwrite(f,"input data:%b ",data);
+			$fwrite(f," and output res: %b\n",results);
+		end
 //        $writememb("results.txt", results);
     end 
+	initial begin
+		$fclose(f);
+	end
 endmodule
