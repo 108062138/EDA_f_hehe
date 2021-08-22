@@ -160,7 +160,7 @@ void optimized_computing_chen() {
         string theval = "";
         bool meetleftbra = false;
         cout << "for the item " << iter->first << endl;
-
+        
         int val = computlhsindex(iter->first);
         if (val == -1)continue;
         indexlib[val] = iter->second;
@@ -183,7 +183,6 @@ void optimized_computing_chen() {
             else {
                 if (uprec.back().second + 1 == rhsval && uprec.back().first + 1 == i) {
                     uprec.push_back(pr);
-                    caslib.insert(pr.first);
                 }else {
                     if (uprec.size() > 1) {
                         upcontis.push_back(uprec);
@@ -192,28 +191,11 @@ void optimized_computing_chen() {
                     uprec.push_back(pr);
                 }
             }
-
-            /*if (downrec.empty()) downrec.push_back(pr);
-            else {
-                if (downrec.back().second - 1 == rhsval && downrec.back().first + 1 == i){
-                    downrec.push_back(pr);
-                    caslib.insert(ps.first);
-                }else {
-                    if (downrec.size() > 1) {
-                        downcontis.push_back(downrec);
-                    }
-                    downrec.clear();
-                    downrec.push_back(pr);
-                }
-            }*/
         }
     }
 
     if (uprec.size() > 1)
         upcontis.push_back(uprec);
-    //if (downrec.size() > 1)
-    //    downcontis.push_back(downrec);
-
     set<int> rec;
     cout << "for the upcontis: " << endl;
     for (auto x : upcontis) {
@@ -222,6 +204,9 @@ void optimized_computing_chen() {
             rec.insert(y.first);
         }
         int len = x.size();
+        for (auto item : x) {
+            caslib.insert(item.first);
+        }
         cout << endl;
         string tmp = "assign out[";
         tmp += to_string(x[len - 1].first);
@@ -234,60 +219,11 @@ void optimized_computing_chen() {
         tmp += "];\n";
         cout << tmp;
         rescontis.push(tmp);
-        //cout << "assign out[" << x[len - 1].first << ":" << x[0].first << "] = in[" << x[len - 1].second << ":" << x[0].second << "]" << endl;
-        cout << endl;
     }
-
-    /*cout << "for the downcontis: " << endl;
-    for (auto x : downcontis) {
-        bool meetbutmore = false;
-        if (rec.find(x[0].first) != rec.end()) {
-            if (x.size() > 2)
-                meetbutmore = true;
-            else {
-                caslib.erase(x[1].first);
-                continue;
-            }
-        }
-        int len = x.size();
-        if (meetbutmore == false) {
-            //for (int i = 0; i < len; i++)
-            //    cout << "lhs: " << x[i].first << " rhs: " << x[i].second << endl;
-            string tmp = "assign out[";
-            tmp += to_string(x[len - 1].first);
-            tmp += ":";
-            tmp += to_string(x[0].first);
-            tmp += "] = in[";
-            tmp += to_string(x[len - 1].second);
-            tmp += ":";
-            tmp += to_string(x[0].second);
-            tmp += "];\n";
-            cout << tmp;
-            rescontis.push(tmp);
-            //cout << "assign out[" << x[len - 1].first << ":" << x[0].first << "] = in[" << x[len - 1].second << ":" << x[0].second << "]" << endl;
-            cout << endl;
-        }
-        else {
-            //for (int i = 1; i < len; i++)
-            //    cout << "lhs: " << x[i].first << " rhs: " << x[i].second << endl;
-            string tmp = "assign out[";
-            tmp += to_string(x[len - 1].first);
-            tmp += ":";
-            tmp += to_string(x[1].first);
-            tmp += "] = in[";
-            tmp += to_string(x[len - 1].second);
-            tmp += ":";
-            tmp += to_string(x[1].second);
-            tmp += "];\n";
-            cout << tmp;
-            rescontis.push(tmp);
-            //cout << "assign out[" << x[len - 1].first << ":" << x[1].first << "] = in[" << x[len - 1].second << ":" << x[1].second << "]" << endl;
-            cout << endl;
-        }
-        cout << endl;
-    }*/
-
-
+    //after push item into rescontis
+    cout << "for caslib:" << endl;
+    for (auto iter = caslib.begin(); iter != caslib.end(); ++iter)
+        cout << *iter << endl;
 }
 
 void optimized_computing_lee() {
@@ -548,44 +484,5 @@ int main()
     mf << "endmodule" << endl;
     mf << tok << endl;
     mf.close();
-    //show the required input and output length
-    /*cout << outlen << " " << inlen << "<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<" << endl;
-    //show the temp var
-    cout << "show temp. var" << endl;
-    for (auto x = temporaryvar.begin(); x != temporaryvar.end(); ++x) {
-        cout << *x << endl;
-    }
-    cout << "show used temp" << endl;
-    for (auto x = usedtemparyvar.begin(); x != usedtemparyvar.end(); ++x)cout << *x << endl;
-    //show the lhseq:
-    cout << "show equatino " << endl;
-    for (auto x = lhseq.begin(); x != lhseq.end(); ++x) {
-        cout << "lhs: " << x->first << " rhs: ";
-        if (x->second != nullptr && x->second->left==nullptr && x->second->right == nullptr) {
-            cout << x->second->str;
-            cout << endl;
-            continue;
-        }
-        if (x->second->left != nullptr) {
-            cout << x->second->left->str << " ";
-        }
-        cout << x->second->str << " ";
-        if (x->second->right != nullptr) {
-            cout << x->second->right->str << endl;
-        }
-        cout << endl;
-    }*/
     return 0;
 }
-
-
-// Run program: Ctrl + F5 or Debug > Start Without Debugging menu
-// Debug program: F5 or Debug > Start Debugging menu
-
-// Tips for Getting Started:
-//   1. Use the Solution Explorer window to add/manage files
-//   2. Use the Team Explorer window to connect to source control
-//   3. Use the Output window to see build output and other messages
-//   4. Use the Error List window to view errors
-//   5. Go to Project > Add New Item to create new code files, or Project > Add Existing Item to add existing code files to the project
-//   6. In the future, to open this project again, go to File > Open > Project and select the .sln file
