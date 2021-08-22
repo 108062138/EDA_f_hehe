@@ -454,6 +454,7 @@ int main()
 
     optimized_computing_lee();
     optimized_computing_david();
+    optimized_computing_lee();
     cut_unused_tmp();
     optimized_computing_chen();
     ofstream mf("optimized.v");
