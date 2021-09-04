@@ -27,6 +27,7 @@ stack<string> st;
 queue<string> endoutput;
 vector<vector<pair<int, int> > > upcontis;
 vector<vector<pair<int, int> > > downcontis;
+vector<vector< pair <pair<int, int>, pair<string, string> > > > vec;
 set<int> caslib;
 stack<string> rescontis;
 
@@ -225,7 +226,97 @@ void optimized_computing_chen() {
     for (auto iter = caslib.begin(); iter != caslib.end(); ++iter)
         cout << *iter << endl;
 }
+void optimized_combining_lee() {
+    vector<TreeNode*> indexlib(outlen);
+    cout << "@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@" << endl;
+    for (auto iter = lhseq.begin(); iter != lhseq.end(); ++iter) {
+        string theval = "";
+        bool meetleftbra = false;
+        cout << "for the item " << iter->first << " = ";
 
+        int val = computlhsindex(iter->first);
+        if (val == -1)continue;
+        indexlib[val] = iter->second;
+        if (iter->second->left && iter->second->right) {
+            cout << iter->second->left->str << " " << iter->second->str << " " << iter->second->right->str;
+            cout << endl;
+        }
+    }
+    cout << "@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@" << endl;
+    vector<pair<int, int> > uprec;
+    vector<pair<int, int> > downrec;
+    vector< pair <pair<int, int>, pair<string, string> > > p;
+
+    for (int i = 0; i < outlen; i++) {
+        cout << "out[" << i << "]= ";
+        if (!(indexlib[i]->left && indexlib[i]->right))continue;
+        if (indexlib[i]->left->str.find("in[") != std::string::npos) {//the rhs has "in["
+            cout << indexlib[i]->str << endl;
+            string tmpval = "";
+
+            for (int st = 3; st < indexlib[i]->left->str.length(); st++) {
+                if (indexlib[i]->left->str[st] == ']')break;
+                tmpval.push_back(indexlib[i]->left->str[st]);
+            }
+            string mid, right;
+            mid = indexlib[i]->str;
+            right = indexlib[i]->right->str;
+
+            int rhsval = stoi(tmpval);
+            auto pr = make_pair(i, rhsval);
+            auto pr_oper_and_var = make_pair(mid, right);
+            auto pr_pr_and_oper = make_pair(pr, pr_oper_and_var);
+            //p.push_back(pr_pr_and_oper);
+
+            if (p.empty()) p.push_back(pr_pr_and_oper);
+            else {
+                if (p.back().first.second + 1 == rhsval && p.back().first.first + 1 == i) {
+                    if (p.back().second.first == mid && p.back().second.first == right)
+                        p.push_back(pr_pr_and_oper);
+                }
+                else {
+                    if (p.size() > 1) {
+                        vec.push_back(p);
+                    }
+                    p.clear();
+                    p.push_back(pr_pr_and_oper);
+                }
+            }
+        }
+    }
+    if (p.size() > 1)
+        vec.push_back(p);
+    ///////
+    set<int> rec;
+    cout << "for the upcontis: " << endl;
+    for (auto x : vec) {
+        for (auto y : x) {
+            //    cout << "lhs: " << y.first << " rhs: " << y.second << endl;
+            rec.insert(y.first.first);
+            caslib.insert(y.first.first);
+        }
+        int len = rec.size();
+
+        cout << endl;
+        string tmp = "assign out[";
+        tmp += to_string(x[len - 1].first.first);
+        tmp += ":";
+        tmp += to_string(x[0].first.first);
+        tmp += "] = in[";
+        tmp += to_string(x[len - 1].first.second);
+        tmp += ":";
+        tmp += to_string(x[0].first.second) + "]";
+        tmp += x[0].second.first + x[0].second.second;
+        tmp += ";\n";
+        cout << tmp;
+        rescontis.push(tmp);
+    }
+    //after push item into rescontis
+    cout << "for caslib:" << endl;
+    for (auto iter = caslib.begin(); iter != caslib.end(); ++iter)
+        cout << *iter << endl;
+    
+}
 void optimized_computing_lee() {
     for (auto iter = lhseq.begin(); iter != lhseq.end(); ++iter) {
         //handle bitwise &
@@ -457,6 +548,7 @@ int main()
     optimized_computing_lee();
     cut_unused_tmp();
     optimized_computing_chen();
+    optimized_combining_lee();
     ofstream mf("optimized.v");
     mf << "module dut(out,in);" << endl;
     mf << rem_out << " out;" << endl;
