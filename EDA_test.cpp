@@ -161,7 +161,7 @@ void optimized_computing_chen() {
         string theval = "";
         bool meetleftbra = false;
         cout << "for the item " << iter->first << endl;
-        
+
         int val = computlhsindex(iter->first);
         if (val == -1)continue;
         indexlib[val] = iter->second;
@@ -170,6 +170,8 @@ void optimized_computing_chen() {
     vector<pair<int, int> > downrec;
     for (int i = 0; i < outlen; i++) {
         cout << "out[" << i << "]= ";
+        if (indexlib[i]->left != nullptr || indexlib[i]->right != nullptr)
+            continue;
         if (indexlib[i]->str.find("in[") != std::string::npos) {//the rhs has "in["
             cout << indexlib[i]->str << endl;
             string tmpval = "";
@@ -184,7 +186,8 @@ void optimized_computing_chen() {
             else {
                 if (uprec.back().second + 1 == rhsval && uprec.back().first + 1 == i) {
                     uprec.push_back(pr);
-                }else {
+                }
+                else {
                     if (uprec.size() > 1) {
                         upcontis.push_back(uprec);
                     }
@@ -201,7 +204,7 @@ void optimized_computing_chen() {
     cout << "for the upcontis: " << endl;
     for (auto x : upcontis) {
         for (auto y : x) {
-        //    cout << "lhs: " << y.first << " rhs: " << y.second << endl;
+            //    cout << "lhs: " << y.first << " rhs: " << y.second << endl;
             rec.insert(y.first);
         }
         int len = x.size();
@@ -238,6 +241,7 @@ void optimized_combining_lee() {
         if (val == -1)continue;
         indexlib[val] = iter->second;
         if (iter->second->left && iter->second->right) {
+
             cout << iter->second->left->str << " " << iter->second->str << " " << iter->second->right->str;
             cout << endl;
         }
@@ -246,12 +250,12 @@ void optimized_combining_lee() {
     vector<pair<int, int> > uprec;
     vector<pair<int, int> > downrec;
     vector< pair <pair<int, int>, pair<string, string> > > p;
-
+    cout << "77777777777777777777777" << endl;
     for (int i = 0; i < outlen; i++) {
-        cout << "out[" << i << "]= ";
+        //cout << "out[" << i << "]= ";
         if (!(indexlib[i]->left && indexlib[i]->right))continue;
         if (indexlib[i]->left->str.find("in[") != std::string::npos) {//the rhs has "in["
-            cout << indexlib[i]->str << endl;
+            cout << indexlib[i]->left->str << endl;
             string tmpval = "";
 
             for (int st = 3; st < indexlib[i]->left->str.length(); st++) {
@@ -271,7 +275,7 @@ void optimized_combining_lee() {
             if (p.empty()) p.push_back(pr_pr_and_oper);
             else {
                 if (p.back().first.second + 1 == rhsval && p.back().first.first + 1 == i) {
-                    if (p.back().second.first == mid && p.back().second.first == right)
+                    if (p.back().second.first == mid && p.back().second.second == right)
                         p.push_back(pr_pr_and_oper);
                 }
                 else {
@@ -284,6 +288,10 @@ void optimized_combining_lee() {
             }
         }
     }
+    for (auto j : p) {
+        cout << j.first.first << endl;
+    }
+    cout << "77777777777777777777777" << endl;
     if (p.size() > 1)
         vec.push_back(p);
     ///////
@@ -315,7 +323,7 @@ void optimized_combining_lee() {
     cout << "for caslib:" << endl;
     for (auto iter = caslib.begin(); iter != caslib.end(); ++iter)
         cout << *iter << endl;
-    
+
 }
 void optimized_computing_lee() {
     for (auto iter = lhseq.begin(); iter != lhseq.end(); ++iter) {

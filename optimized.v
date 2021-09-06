@@ -59,7 +59,6 @@ assign origtmp7 = in[11] & in[0];
 assign origtmp8 = in[14] | in[3];
 assign origtmp9 = in[4] | origtmp17;
 assign out[0] = origtmp3 ^ origtmp19;
-assign out[10] = in[2];
 assign out[14] = in[5];
 assign out[15] = in[4];
 assign out[16] = in[3];
@@ -68,25 +67,20 @@ assign out[18] = in[2];
 assign out[19] = in[2];
 assign out[1] = origtmp25 ^ in[1];
 assign out[20] = in[0];
-assign out[21] = in[2];
-assign out[23] = in[5];
 assign out[26] = in[7];
 assign out[27] = in[13];
 assign out[28] = in[12];
 assign out[29] = in[11];
 assign out[2] = in[5] | 1'b0;
-assign out[30] = in[15];
-assign out[32] = in[15];
 assign out[36] = in[17];
 assign out[37] = in[16];
-assign out[38] = in[15];
 assign out[3] = in[19] | origtmp28;
 assign out[4] = 1'b1;
 assign out[5] = 1'b0;
 assign out[6] = 1'b0;
 assign out[7] = 1'b0;
 assign out[8] = 1'b0;
-assign out[9] = 1'b1 | in[8];
+assign out[9] = 1'b1;
 assign out[39:38] = in[16:15];
 assign out[35:32] = in[18:15];
 assign out[31:30] = in[16:15];
@@ -99,12 +93,18 @@ module tb();
     wire[39:0] results;
     reg[19:0] data;
     dut duttest(results[39:0], data[19:0]);
+	initial begin
+		f=$fopen("output.txt","w");
+	end
     initial begin
 //        $readmemb("data.txt", data);
-        data[19:0]=20'b0;
-        $display("data = [%20b]", data);
-        #1
-        $display("results = [%10b]", results);
+		for (data = 20'b0000_0000_0000_0000; data<20'b0000_1111_1111_1111 ; data=data+20'b0000_0000_0000_0001) begin
+			$fwrite(f,"input data:%b ",data);
+			$fwrite(f," and output res: %b\n",results);
+		end
 //        $writememb("results.txt", results);
     end 
+	initial begin
+		$fclose(f);
+	end
 endmodule
