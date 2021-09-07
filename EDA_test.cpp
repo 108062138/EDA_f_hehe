@@ -11,6 +11,7 @@
 #include <stack>
 #include <map>
 #include <queue>
+#include <algorithm>
 using namespace std;
 typedef struct TreeNode {
     string str;
@@ -27,7 +28,8 @@ stack<string> st;
 queue<string> endoutput;
 vector<vector<pair<int, int> > > upcontis;
 vector<vector<pair<int, int> > > downcontis;
-vector<vector< pair <pair<int, int>, pair<string, string> > > > vec;
+vector<vector<pair<int, char> > > fkcontis;
+vector<vector< pair <pair<int, string>, pair<int, int> > > > leecontis;
 set<int> caslib;
 stack<string> rescontis;
 
@@ -153,6 +155,7 @@ int computlhsindex(string str) {
 
     return stoi(theval);
 }
+
 void optimized_computing_chen() {
 
     vector<TreeNode*> indexlib(outlen);
@@ -160,20 +163,38 @@ void optimized_computing_chen() {
     for (auto iter = lhseq.begin(); iter != lhseq.end(); ++iter) {
         string theval = "";
         bool meetleftbra = false;
-        cout << "for the item " << iter->first << endl;
+        //cout << "for the item " << iter->first << endl;
 
         int val = computlhsindex(iter->first);
         if (val == -1)continue;
         indexlib[val] = iter->second;
     }
     vector<pair<int, int> > uprec;
+    vector<pair<int, char>> fkrec;
     vector<pair<int, int> > downrec;
     for (int i = 0; i < outlen; i++) {
-        cout << "out[" << i << "]= ";
+        //cout << "out[" << i << "]= ";
         if (indexlib[i]->left != nullptr || indexlib[i]->right != nullptr)
             continue;
+        if (indexlib[i]->str.find("1\'b1") != std::string::npos || indexlib[i]->str.find("1\'b0") != std::string::npos) {
+            char tmpval = (indexlib[i]->str.find("1\'b1") != std::string::npos)? '1' : '0';
+            auto pr = make_pair(i, tmpval);
+            if (fkrec.empty())fkrec.push_back(pr);
+            else {
+                if (fkrec.back().first + 1 == i) {
+                    fkrec.push_back(pr);
+                }
+                else {
+                    if (fkrec.size() > 1) {
+                        fkcontis.push_back(fkrec);
+                    }
+                    fkrec.clear();
+                    fkrec.push_back(pr);
+                }
+            }
+        }
         if (indexlib[i]->str.find("in[") != std::string::npos) {//the rhs has "in["
-            cout << indexlib[i]->str << endl;
+            //cout << indexlib[i]->str << endl;
             string tmpval = "";
             for (int st = 3; st < indexlib[i]->str.length(); st++) {
                 if (indexlib[i]->str[st] == ']')break;
@@ -200,8 +221,10 @@ void optimized_computing_chen() {
 
     if (uprec.size() > 1)
         upcontis.push_back(uprec);
+    if (fkrec.size() > 1)
+        fkcontis.push_back(fkrec);
     set<int> rec;
-    cout << "for the upcontis: " << endl;
+    //cout << "for the upcontis: " << endl;
     for (auto x : upcontis) {
         for (auto y : x) {
             //    cout << "lhs: " << y.first << " rhs: " << y.second << endl;
@@ -211,7 +234,7 @@ void optimized_computing_chen() {
         for (auto item : x) {
             caslib.insert(item.first);
         }
-        cout << endl;
+        //cout << endl;
         string tmp = "assign out[";
         tmp += to_string(x[len - 1].first);
         tmp += ":";
@@ -221,108 +244,122 @@ void optimized_computing_chen() {
         tmp += ":";
         tmp += to_string(x[0].second);
         tmp += "];\n";
-        cout << tmp;
+        //cout << tmp;
+        rescontis.push(tmp);
+    }
+
+    for (auto x : fkcontis) {
+        int len = x.size();
+        string rstr="";
+        for (auto item : x) {
+            rstr.push_back(item.second);
+            caslib.insert(item.first);
+        }
+        reverse(rstr.begin(),rstr.end());
+        string tmp = "assign out[";
+        tmp += to_string(x[len - 1].first);
+        tmp += ":";
+        tmp += to_string(x[0].first);
+        tmp += "] = ";
+        tmp += to_string(len);
+        tmp += "\'b";
+        tmp += rstr;
+        tmp += ";\n";
         rescontis.push(tmp);
     }
     //after push item into rescontis
-    cout << "for caslib:" << endl;
-    for (auto iter = caslib.begin(); iter != caslib.end(); ++iter)
-        cout << *iter << endl;
+    //cout << "for caslib:" << endl;
+    //for (auto iter = caslib.begin(); iter != caslib.end(); ++iter)
+    //    cout << *iter << endl;
 }
+
 void optimized_combining_lee() {
+
     vector<TreeNode*> indexlib(outlen);
     cout << "@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@" << endl;
     for (auto iter = lhseq.begin(); iter != lhseq.end(); ++iter) {
         string theval = "";
         bool meetleftbra = false;
-        cout << "for the item " << iter->first << " = ";
+        cout << "for the item " << iter->first << " = " << endl;
 
         int val = computlhsindex(iter->first);
         if (val == -1)continue;
         indexlib[val] = iter->second;
-        if (iter->second->left && iter->second->right) {
-
-            cout << iter->second->left->str << " " << iter->second->str << " " << iter->second->right->str;
-            cout << endl;
-        }
     }
     cout << "@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@" << endl;
-    vector<pair<int, int> > uprec;
-    vector<pair<int, int> > downrec;
-    vector< pair <pair<int, int>, pair<string, string> > > p;
-    cout << "77777777777777777777777" << endl;
+    vector<pair< pair<int, string>, pair<int,int> > >leerec;
     for (int i = 0; i < outlen; i++) {
         //cout << "out[" << i << "]= ";
         if (!(indexlib[i]->left && indexlib[i]->right))continue;
-        if (indexlib[i]->left->str.find("in[") != std::string::npos) {//the rhs has "in["
-            cout << indexlib[i]->left->str << endl;
-            string tmpval = "";
+        if (indexlib[i]->left->str.find("in[") != std::string::npos && indexlib[i]->right->str.find("in[") != std::string::npos) {//the rhs has "in["
+            //cout << indexlib[i]->left->str << endl;
+            string ltmpval = "";
 
             for (int st = 3; st < indexlib[i]->left->str.length(); st++) {
                 if (indexlib[i]->left->str[st] == ']')break;
-                tmpval.push_back(indexlib[i]->left->str[st]);
+                ltmpval.push_back(indexlib[i]->left->str[st]);
             }
-            string mid, right;
-            mid = indexlib[i]->str;
-            right = indexlib[i]->right->str;
+            int lrhsval = stoi(ltmpval);
 
-            int rhsval = stoi(tmpval);
-            auto pr = make_pair(i, rhsval);
-            auto pr_oper_and_var = make_pair(mid, right);
-            auto pr_pr_and_oper = make_pair(pr, pr_oper_and_var);
-            //p.push_back(pr_pr_and_oper);
+            string rtmpval = "";
 
-            if (p.empty()) p.push_back(pr_pr_and_oper);
+            for (int st = 3; st < indexlib[i]->right->str.length(); st++) {
+                if (indexlib[i]->right->str[st] == ']')break;
+                rtmpval.push_back(indexlib[i]->right->str[st]);
+            }
+            int rrhsval = stoi(rtmpval);
+            auto pr1 = make_pair(i, indexlib[i]->str);
+            auto pr2 = make_pair(lrhsval, rrhsval);
+            auto pr = make_pair(pr1, pr2);
+
+            if (leerec.empty())leerec.push_back(pr);
             else {
-                if (p.back().first.second + 1 == rhsval && p.back().first.first + 1 == i) {
-                    if (p.back().second.first == mid && p.back().second.second == right)
-                        p.push_back(pr_pr_and_oper);
+                if (leerec.back().first.first + 1 == i &&
+                    leerec.back().second.first  +1 == pr.second.first && 
+                    leerec.back().second.second +1 == pr.second.second &&
+                    leerec.back().first.second == pr.first.second
+                    ) {
+                    //cout << "lee:" << leerec.back().second.first + 1 << " prsf" << pr.second.first << endl;
+                    //    cout << "lee: " << leerec.back().second.second + 1 << " pr" << pr.second.first << endl;
+
+                    leerec.push_back(pr);
                 }
                 else {
-                    if (p.size() > 1) {
-                        vec.push_back(p);
+                    if (leerec.size() > 1) {
+                        leecontis.push_back(leerec);
                     }
-                    p.clear();
-                    p.push_back(pr_pr_and_oper);
+                    leerec.clear();
+                    leerec.push_back(pr);
                 }
             }
         }
     }
-    for (auto j : p) {
-        cout << j.first.first << endl;
-    }
-    cout << "77777777777777777777777" << endl;
-    if (p.size() > 1)
-        vec.push_back(p);
-    ///////
-    set<int> rec;
-    cout << "for the upcontis: " << endl;
-    for (auto x : vec) {
-        for (auto y : x) {
-            //    cout << "lhs: " << y.first << " rhs: " << y.second << endl;
-            rec.insert(y.first.first);
-            caslib.insert(y.first.first);
+    if (leerec.size() > 1)
+        leecontis.push_back(leerec);
+    //cout << "for the upcontis: " << endl;
+    for (auto x : leecontis) {
+        int len = x.size();
+        for (auto item : x) {
+            caslib.insert(item.first.first);
         }
-        int len = rec.size();
-
-        cout << endl;
         string tmp = "assign out[";
         tmp += to_string(x[len - 1].first.first);
         tmp += ":";
         tmp += to_string(x[0].first.first);
-        tmp += "] = in[";
-        tmp += to_string(x[len - 1].first.second);
+        tmp += "] = ";
+        tmp += "in[";
+        tmp += to_string(x[len - 1].second.first);
         tmp += ":";
-        tmp += to_string(x[0].first.second) + "]";
-        tmp += x[0].second.first + x[0].second.second;
-        tmp += ";\n";
-        cout << tmp;
+        tmp += to_string(x[0].second.first);
+        tmp += "] ";
+        tmp += x[0].first.second;
+        tmp += " in[";
+        tmp += to_string(x[len - 1].second.second);
+        tmp += ":";
+        tmp += to_string(x[0].second.second);
+        tmp += "];\n";
         rescontis.push(tmp);
     }
-    //after push item into rescontis
-    cout << "for caslib:" << endl;
-    for (auto iter = caslib.begin(); iter != caslib.end(); ++iter)
-        cout << *iter << endl;
 
 }
 void optimized_computing_lee() {
@@ -378,7 +415,8 @@ void optimized_computing_lee() {
                     continue;
                 }
                 if ((iter->second->left->str == "1\'b0" && iter->second->left->str == "1\'b0") ||
-                    (iter->second->left->str == "1\'b1" && iter->second->left->str == "1\'b1")) {
+                    (iter->second->left->str == "1\'b1" && iter->second->left->str == "1\'b1") ||
+                    (iter->second->left->str == iter->second->right->str)) {
                     delete iter->second->left;
                     iter->second->left = nullptr;
                     delete iter->second->right;
@@ -449,7 +487,7 @@ int main()
         }
     }
 
-    cout << "=============================================================" << endl;
+    //cout << "=============================================================" << endl;
 
     bool seeendflag = false;
     string rem_out;
@@ -477,7 +515,7 @@ int main()
         }
         if (!st.empty()) {
             if (st.top() == "wire") {
-                cout << "record wire: " << token_buffer[i] << endl;
+                //cout << "record wire: " << token_buffer[i] << endl;
                 st.pop();
                 token_buffer[i].pop_back();
                 temporaryvar.insert(token_buffer[i]);

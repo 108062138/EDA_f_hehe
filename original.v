@@ -77,15 +77,14 @@ module dut (out, in);
 	assign out[12] = in[4];
 	assign out[13] = in[5];
 	
-	assign out[14] = in[5];
-	assign out[15] = in[4];
-	assign out[16] = in[3];
-	assign out[17] = in[2];
-	
-	assign out[18] = in[2];
+	assign out[16] = 1'b0;
+	assign out[17] = 1'b0;
+	assign out[14] = 1'b1;
+	assign out[15] = 1'b1;
 	assign out[19] = in[2];
 	assign out[20] = in[0];
 	assign out[21] = in[2];
+	assign out[18] = in[2];
 	assign out[22] = in[3];
 
 	assign out[23] = in[5];
@@ -98,35 +97,28 @@ module dut (out, in);
 	assign out[28] = in[12];
 	assign out[29] = in[11];
 
-	assign out[30] = in[15];
-	assign out[31] = in[16];
+	assign out[30] = in[13] ^ in[1];
+	assign out[31] = in[14] ^ in[2];
 	
-	assign out[32] = in[15];
-	assign out[33] = in[16];
-	assign out[34] = in[17];
-	assign out[35] = in[18];
-	assign out[36] = in[17];
-	assign out[37] = in[16];
-	assign out[38] = in[15];
-	assign out[39] = in[16];
+	assign out[32] = in[15] ^ in[3];
+	assign out[33] = in[16] | in[1];
+	assign out[34] = in[17] ^ in[2];
+	assign out[35] = 1'b1;
+	assign out[36] = 1'b0;
+	assign out[37] = in[16] | in[5];
+	assign out[38] = in[15] | in[6];
+	assign out[39] = in[16] | in[7];
 endmodule
 
 module tb();
-    wire[39:0] results;
-    reg[19:0] data;
-    dut duttest(results[39:0], data[19:0]);
-	initial begin
-		f=$fopen("output.txt","w");
-	end
+    reg[9:0] results[1];
+    reg[19:0] data[1];
+    dut duttest(results[0], data[0]);
     initial begin
-//        $readmemb("data.txt", data);
-		for (data = 20'b0000_0000_0000_0000; data<20'b0000_1111_1111_1111 ; data=data+20'b0000_0000_0000_0001) begin
-			$fwrite(f,"input data:%b ",data);
-			$fwrite(f," and output res: %b\n",results);
-		end
-//        $writememb("results.txt", results);
+        $readmemb("data.txt", data);
+        $display("data = [%20b]", data[0]);
+        #1
+        $display("results = [%10b]", results[0]);
+        $writememb("results.txt", results);
     end 
-	initial begin
-		$fclose(f);
-	end
 endmodule
